@@ -20,10 +20,27 @@ impl Hash {
                 e
             )
         }
-        //Obtain the sha256 of the serialized value
+        // Obtain the SHA-256 hash of the serialized value.
+        // The hash will be a string in hexadecimal format.
+        // Example: "315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3"
         let hash = digest(&serialized);
+
+        // Convert the hexadecimal string to a vector of bytes.
+        // Each hexadecimal digit pair represents a byte.
+        // For example, "31" becomes 49, and "5f" becomes 95.
+        //[31,95,...]
         let hash_bytes = hex::decode(hash).unwrap();
-        let hash_array: [u8; 32] = hash_bytes.as_slice().try_into().unwrap();
+
+        // Now we need to convert the Vector into a slice of 32 elements u8
+        // - as_slice(): This method converts a Vec<u8> into a &[u8], which
+        //              is a reference to the underlying array of bytes
+        //              stored in the vector.
+
+        let hash_slice: [u8; 32] = hash_bytes.as_slice();
+
+        //Now we convert the slice into an array, this would fail in case the
+        //slice is not 32 elements long, however the sha256 hash is always 32 bytes
+        let hash_array: [u8; 32] = hash_slice.try_into().unwrap();
         Hash(U256::from(hash_array))
     }
     pub fn matches_target(&self, target: U256) -> bool {
