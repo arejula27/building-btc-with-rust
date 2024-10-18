@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use sha256::digest;
 use std::fmt;
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
 pub struct Hash(U256);
 
 impl Hash {
@@ -36,7 +36,7 @@ impl Hash {
         //              is a reference to the underlying array of bytes
         //              stored in the vector.
 
-        let hash_slice: [u8; 32] = hash_bytes.as_slice();
+        let hash_slice: &[u8] = hash_bytes.as_slice();
 
         //Now we convert the slice into an array, this would fail in case the
         //slice is not 32 elements long, however the sha256 hash is always 32 bytes
@@ -48,6 +48,13 @@ impl Hash {
     }
     pub fn zero() -> Self {
         Hash(U256::zero())
+    }
+
+    pub fn as_bytes(&self) -> [u8; 32] {
+        let mut bytes: Vec<u8> = vec![0; 32];
+        self.0.to_little_endian(&mut bytes);
+
+        bytes.as_slice().try_into().unwrap()
     }
 }
 
